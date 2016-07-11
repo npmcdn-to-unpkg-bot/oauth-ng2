@@ -1,36 +1,40 @@
-import {Injectable} from 'angular2/core';
-import EndpointManager from './endpoint.manager';
-import TokenManager from './token.manager';
-import {IToken, IEndpoint} from './types';
+import {Injectable} from '@angular/core';
+import {EndpointManager, TokenManager, ProfileManager} from './managers';
+import {IToken, IEndpoint} from './helpers';
 
 @Injectable()
 export default class Authenticator {
     constructor(
-        private _tokenService: TokenManager,
-        private _endpointService: EndpointManager
+        private _endpointManager: EndpointManager,
+        private _tokenManager: TokenManager,
+        private _profileManager: ProfileManager
     ) {
-        console.log(Date.now() + ': Authenticator service constructed');
     }
 
     authenticate(provider: string): Promise<IToken> {
-        let endpoint = this._endpointService.get(provider);
+        let endpoint = this._endpointManager.get(provider);
+        return this._openInPopup(endpoint);
+    }
+
+    private _openInPopup(endpoint: IEndpoint) {
+        let url = EndpointManager.getLoginUrl(endpoint);
         let windowSize = endpoint.windowSize || "width=400,height=600";
         let windowFeatures = windowSize + ",menubar=no,toolbar=no,location=no,resizable=no,scrollbars=yes,status=no";
-        let popup: Window = window.open(this._endpointService.getLoginUrl(endpoint), provider.toUpperCase(), windowFeatures);
+        let popupWindow: Window = window.open(url, endpoint.provider.toUpperCase(), windowFeatures);
 
         return new Promise<IToken>((resolve, reject) => {
             try {
                 let interval = setInterval(() => {
                     try {
-                        if (popup.document.URL.indexOf(endpoint.redirectUrl) !== -1) {
+                        if (popupWindow.document.URL.indexOf(endpoint.redirectUrl) !== -1) {
                             clearInterval(interval);
-                            let tokenPromise = this._tokenService.getToken(popup.document.URL, endpoint)
-                            popup.close();
-                            resolve(tokenPromise);
+                            let token = this._tokenManager.getToken(popupWindow.document.URL, endpoint)
+                            popupWindow.close();
+                            resolve(token);
                         }
                     }
                     catch (exception) {
-                        if (!popup) {
+                        if (!popupWindow) {
                             clearInterval(interval);
                             reject(exception);
                         }
@@ -38,7 +42,7 @@ export default class Authenticator {
                 }, 400);
             }
             catch (exception) {
-                popup.close();
+                popupWindow.close();
                 reject(exception);
             }
         });
