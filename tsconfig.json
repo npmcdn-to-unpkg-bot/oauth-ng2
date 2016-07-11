@@ -10,7 +10,7 @@
     "noImplicitAny": false,
     "rootDir": "./src",
     "outDir": "./wwwroot",
-    "noEmitOnError": true
+    "noEmitOnError": false
   },
   "exclude": [
     "node_modules"

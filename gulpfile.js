@@ -13,7 +13,7 @@ var gulp = require('gulp'),
         },
         browserSync: {
             server: {
-                baseDir: './client',
+                baseDir: './demo',
                 routes: {
                     '/node_modules': 'node_modules',
                     '/rxjs': 'node_modules/rxjs'
