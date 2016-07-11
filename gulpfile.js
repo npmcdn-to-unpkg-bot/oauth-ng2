@@ -1,5 +1,4 @@
 /// Gulp configuration for Typescript, SASS and Live Reload
-
 'use strict';
 
 // initialize all the requried libraries and files
