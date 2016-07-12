@@ -1,0 +1,82 @@
+<div id="index-banner" class="parallax-container valign-wrapper">
+  <div class="section no-pad-bot valign">
+    <div class="container">
+      <br><br>
+      <h1 class="header center lighten-5 thin">OAuth for Angular2</h1>
+      <div class="row center">
+        <h5 class="header col s12 light">Sign in to Google, Microsoft, Facebook or any other Implicit Flow OAuth provider with ease.</h5>
+      </div>
+    </div>
+  </div>
+  <div class="parallax overlay blue darken-4"><img src="assets/background1.jpg" alt="Unsplashed background img 3"></div>
+</div>
+
+<div class="container demo-container">
+  <div class="section">
+    <!--   Icon Section   -->
+    <div class="row">
+      <div class="col s12 center">
+        <h3><i class="mdi-content-send"></i></h3>
+        <h4>Demo</h4>
+      </div>
+
+      <div class="col s12 m4">
+        <div class="icon-block center">
+          <i class="icon google waves-effect waves-light" (click)="authenticate('Google')"></i>
+          <h4 class="name thin">{{ profiles?.Google?.displayName }}</h4>
+          <em class="id light">{{ profiles?.Google?.id }}</em>
+        </div>
+      </div>
+
+      <div class="col s12 m4">
+        <div class="icon-block center">
+          <i class="icon microsoft waves-effect waves-light" (click)="authenticate('Microsoft')"></i>
+          <h4 class="name thin">{{ profiles?.Microsoft?.displayName }}</h4>
+          <em class="id light">{{ profiles?.Microsoft?.id }}</em>
+        </div>
+      </div>
+
+      <div class="col s12 m4">
+        <div class="icon-block center">
+          <i class="icon facebook waves-effect waves-light" (click)="authenticate('Facebook')"></i>
+          <h4 class="name thin">{{ profiles?.Facebook?.name }}</h4>
+          <em class="id light">{{ profiles?.Facebook?.id }}</em>
+        </div>
+      </div>
+    </div>
+    <div class="col s12 center" [hidden]="profiles == null">
+      <a class="btn-floating btn-large waves-effect waves-light blue darken-4" (click)="logout()"><i class="material-icons">input</i></a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="section">
+
+    <div class="row">
+      <div class="col s12 center">
+        <h3><i class="mdi-content-send brown-text"></i></h3>
+        <h4>Usage</h4>
+        <p class="left-align light">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam scelerisque id nunc nec volutpat. Etiam pellentesque
+          tristique arcu, non consequat magna fermentum ac. Cras ut ultricies eros. Maecenas eros justo, ullamcorper a sapien
+          id, viverra ultrices eros. Morbi sem neque, posuere et pretium eget, bibendum sollicitudin lacus. Aliquam eleifend
+          sollicitudin diam, eu mattis nisl maximus sed. Nulla imperdiet semper molestie. Morbi massa odio, condimentum sed
+          ipsum ac, gravida ultrices erat. Nullam eget dignissim mauris, non tristique erat. Vestibulum ante ipsum primis
+          in faucibus orci luctus et ultrices posuere cubilia Curae;</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="parallax-container valign-wrapper">
+  <div class="section no-pad-bot valign">
+    <div class="container">
+      <div class="row center">
+        <h5 class="header col s12 light">Check it out on GitHub</h5>
+      </div>
+    </div>
+  </div>
+  <div class="parallax overlay blue darken-4"><img src="assets/background3.jpg" alt="Unsplashed background img 3"></div>
+</div>
