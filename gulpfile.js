@@ -9,7 +9,7 @@ var gulp = require('gulp'),
     config = {
         app: {
             source: './src',
-            dest: '/dist'
+            dest: './dist'
         },
         browserSync: {
             server: {
@@ -32,8 +32,8 @@ gulp.task('compile', function () {
         .pipe(typescript(tsProject))
 
     tsResult.js
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest(config.app.dest), { base: './'})
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('./'))
         .pipe(browserSync.stream());
 });
 
