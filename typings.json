@@ -2,7 +2,6 @@
   "name": "oauth-ng2",
   "dependencies": {},
   "globalDependencies": {
-    "core-js": "registry:dt/core-js#0.0.0+20160602141332",
-    "systemjs": "registry:dt/systemjs#0.18.4+20160417155658"
+    "core-js": "registry:dt/core-js#0.0.0+20160602141332"
   }
 }
