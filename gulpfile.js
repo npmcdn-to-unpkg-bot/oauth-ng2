@@ -9,7 +9,7 @@ var gulp = require('gulp'),
     config = {
         app: {
             source: './src',
-            dest: './dist'
+            dest: '/dist'
         },
         browserSync: {
             server: {
@@ -26,19 +26,19 @@ var gulp = require('gulp'),
 var tsProject = typescript.createProject('./tsconfig.json');
 
 // compile all typescript files
-gulp.task('compile:ts', function () {
+gulp.task('compile', function () {
     var tsResult = tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(typescript(tsProject))
 
     tsResult.js
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest(config.app.dest))
+        .pipe(gulp.dest(config.app.dest), { base: './'})
         .pipe(browserSync.stream());
 });
 
 // start webserver and observe files for changes
-gulp.task('serve', ['compile:ts'], function () {
+gulp.task('serve', ['compile'], function () {
     browserSync.init(config.browserSync);
     gulp.watch(config.app.source + '/**/*.ts', ['compile:ts']);
     gulp.watch(config.browserSync.server.baseDir + '/**/*.*', ['copy'])

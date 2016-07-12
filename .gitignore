@@ -57,5 +57,4 @@ bin/**
 *.user
 node_modules/**
 typings/**
-wwwroot/**
 npm-debug.log
