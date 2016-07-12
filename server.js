@@ -11,6 +11,9 @@ module.exports = {
                 index: './index.html',
                 verbose: true
             })
+        },
+        routes: {
+            '/src': 'dist'
         }
     }
 }

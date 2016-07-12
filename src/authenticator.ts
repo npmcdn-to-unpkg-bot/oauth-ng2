@@ -3,7 +3,7 @@ import {EndpointManager, TokenManager, ProfileManager} from './managers';
 import {IToken, IEndpoint} from './helpers';
 
 @Injectable()
-export default class Authenticator {
+export class Authenticator {
     constructor(
         private _endpointManager: EndpointManager,
         private _tokenManager: TokenManager,

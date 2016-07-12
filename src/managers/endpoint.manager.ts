@@ -1,6 +1,12 @@
 import {Injectable} from '@angular/core'
 import {Storage, StorageType, IEndpoint} from '../helpers';
 
+export const DefaultEndpoints = {
+    Google: 'Google',
+    Microsoft: 'Microsoft',
+    Facebook: 'Facebook'
+};
+
 @Injectable()
 export class EndpointManager extends Storage<IEndpoint> {
     constructor() {
@@ -18,7 +24,7 @@ export class EndpointManager extends Storage<IEndpoint> {
 
     registerGoogleAuth(clientId: string, redirect_uri?: string, scope?: string) {
         var config = <IEndpoint>{
-            provider: 'Google',
+            provider: DefaultEndpoints.Google,
             clientId: clientId,
             redirectUrl: redirect_uri || this.currentHost,
             profileUrl: 'https://www.googleapis.com/plus/v1/people/me',
@@ -34,7 +40,7 @@ export class EndpointManager extends Storage<IEndpoint> {
 
     registerMicrosoftAuth(clientId: string, redirect_uri?: string, scope?: string) {
         var config = <IEndpoint>{
-            provider: 'Microsoft',
+            provider: DefaultEndpoints.Microsoft,
             clientId: clientId,
             redirectUrl: redirect_uri || this.currentHost,
             profileUrl: 'https://graph.microsoft.com/v1.0/me',
@@ -51,7 +57,7 @@ export class EndpointManager extends Storage<IEndpoint> {
 
     registerFacebookAuth(clientId: string, redirect_uri?: string, scope?: string) {
         var config = <IEndpoint>{
-            provider: 'Facebook',
+            provider: DefaultEndpoints.Facebook,
             clientId: clientId,
             redirectUrl: redirect_uri || this.currentHost,
             profileUrl: 'https://graph.facebook.com/v2.5/me',
