@@ -4,7 +4,7 @@ export class Dictionary<T> {
     }
 
     get(key: string): T {
-        if (!this.contains(key)) throw new Error('Key not found.');
+        if (!this.contains(key)) return null;
         return this.items[key];
     }
 
@@ -14,13 +14,13 @@ export class Dictionary<T> {
     };
 
     first() {
-        if (this == null) throw new Error('Dictionary isn\'t initialized. Call \'new\' first.');
+        if (this.items == null) throw new Error('Dictionary isn\'t initialized. Call \'new\' first.');
         var key = this.keys()[0];
         if (key != null) return this.items[key];
     }
 
     insert(key: string, value: T): T {
-        if (this == null) throw new Error('Dictionary isn\'t initialized. Call \'new\' first.');
+        if (this.items == null) throw new Error('Dictionary isn\'t initialized. Call \'new\' first.');
         if (value == null) throw new Error('Value expected. Got ' + value);
         this.items[key] = value;
         return value;
@@ -39,13 +39,13 @@ export class Dictionary<T> {
 
     contains(key: string): boolean {
         if (key == null) throw new Error('Key cannot be null or undefined');
-        if (this == null) throw new Error('Dictionary isn\'t initialized. Call \'new\' first.');
+        if (this.items == null) throw new Error('Dictionary isn\'t initialized. Call \'new\' first.');
         return this.items.hasOwnProperty(key);
     }
 
     keys(): string[] {
         if (this == null) throw new Error('Dictionary isn\'t initialized. Call \'new\' first.');
-        return Object.keys(this);
+        return Object.keys(this.items);
     }
 
     values(): T[] {
@@ -56,7 +56,7 @@ export class Dictionary<T> {
     }
 
     lookup(): { [key: string]: T } {
-        return this.items;
+        return this.keys().length ? this.items : null;
     }
 
     get count(): number {

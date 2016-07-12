@@ -10,9 +10,17 @@ export class Authenticator {
     ) {
     }
 
-    authenticate(provider: string): Promise<IToken> {
+    authenticate(provider: string, force: boolean = false): Promise<IToken> {
+        let token = this._tokenManager.get(provider);
+        if (token != null && !force) return Promise.resolve(token);
+        
         let endpoint = this._endpointManager.get(provider);
-        return this._openInPopup(endpoint);
+        return this._openInPopup(endpoint)
+            .catch(error => this._isTokenExpired(error));
+    }
+
+    private _isTokenExpired(error) {
+
     }
 
     private _openInPopup(endpoint: IEndpoint) {

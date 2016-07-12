@@ -17,14 +17,14 @@ export class Storage<T> extends Dictionary<T>{
     switchStorage(type: StorageType) {
         this._storage = type === StorageType.LocalStorage ? localStorage : sessionStorage;
         if (!this._storage.hasOwnProperty(this._container)) {
-            this._storage[this._container] = "";
+            this._storage[this._container] = null;
         }
 
         this._load();
     }
 
     add(item: string, value: T): T {
-        super.add(item, value);
+        super.insert(item, value);
         this._save();
         return value;
     }
@@ -37,7 +37,7 @@ export class Storage<T> extends Dictionary<T>{
 
     clear() {
         super.clear();
-        this._storage[this._container] = "";
+        this._storage[this._container] = null;
     }
 
     static clear() {
@@ -51,7 +51,8 @@ export class Storage<T> extends Dictionary<T>{
 
     private _load() {
         super.clear();
-        if (this._storage[this._container] == null) return;
         this.items = JSON.parse(this._storage[this._container]);
+        if (this.items == null) this.items = {};
+        return this.items;
     }
 }

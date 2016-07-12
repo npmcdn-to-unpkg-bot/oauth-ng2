@@ -5,6 +5,7 @@ module.exports = {
         "./demo/**/*"
     ],
     server: {
+        https: true,
         baseDir: "./demo",
         middleware: {
             1: require('connect-history-api-fallback')({

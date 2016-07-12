@@ -12,7 +12,7 @@ export class ProfileManager extends Storage<any> {
         private _tokenManager: TokenManager,
         private _endpointManager: EndpointManager
     ) {
-        super('OAuth2Endpoints', StorageType.LocalStorage);
+        super('OAuth2Profiles', StorageType.LocalStorage);
     }
 
     load(provider: string, force: boolean = false): Observable<any> {
@@ -35,8 +35,7 @@ export class ProfileManager extends Storage<any> {
             .map(response => {
                 var json = response.json();
                 if (json == null) return json;
-                console.info(json); // delete this
-                return this.add(provider, json);                
+                return this.add(provider, json);
             });
     }
 }

@@ -19,26 +19,34 @@
         <h3><i class="mdi-content-send"></i></h3>
         <h4>Demo</h4>
       </div>
-      
+
       <div class="col s12 m4">
-        <div class="icon-block">
-          <h2 class="center"><i class="icon google waves-effect waves-light"></i></h2>
+        <div class="icon-block center">
+          <i class="icon google waves-effect waves-light" (click)="authenticate('Google')"></i>
+          <h4 class="name thin">{{ profiles?.Google?.displayName }}</h4>
+          <em class="id light">{{ profiles?.Google?.id }}</em>
         </div>
       </div>
 
       <div class="col s12 m4">
-        <div class="icon-block">
-          <h2 class="center"><i class="icon microsoft waves-effect waves-light"></i></h2>
+        <div class="icon-block center">
+          <i class="icon microsoft waves-effect waves-light" (click)="authenticate('Microsoft')"></i>
+          <h4 class="name thin">{{ profiles?.Microsoft?.displayName }}</h4>
+          <em class="id light">{{ profiles?.Microsoft?.id }}</em>
         </div>
       </div>
 
       <div class="col s12 m4">
-        <div class="icon-block">
-          <h2 class="center"><i class="icon facebook waves-effect waves-light"></i></h2>
+        <div class="icon-block center">
+          <i class="icon facebook waves-effect waves-light" (click)="authenticate('Facebook')"></i>
+          <h4 class="name thin">{{ profiles?.Facebook?.name }}</h4>
+          <em class="id light">{{ profiles?.Facebook?.id }}</em>
         </div>
       </div>
     </div>
-
+    <div class="col s12 center" [hidden]="profiles == null">
+      <a class="btn-floating btn-large waves-effect waves-light blue darken-4" (click)="logout()"><i class="material-icons">input</i></a>
+    </div>
   </div>
 </div>
 
@@ -70,5 +78,5 @@
       </div>
     </div>
   </div>
-  <div class="parallax"><img src="assets/background3.jpg" alt="Unsplashed background img 3"></div>
+  <div class="parallax overlay blue darken-4"><img src="assets/background3.jpg" alt="Unsplashed background img 3"></div>
 </div>
