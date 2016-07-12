@@ -60,3 +60,4 @@ typings/**
 npm-debug.log
 src/**/*.d.ts
 src/**/*.js
+src/**/*.map
