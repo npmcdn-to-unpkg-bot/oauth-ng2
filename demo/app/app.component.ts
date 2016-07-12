@@ -12,7 +12,7 @@ export class AppComponent implements OnInit {
     private authenticator: Authenticator,
     private endpointManager: EndpointManager,
     private tokenManager: TokenManager,
-    private ProfileManager: ProfileManager
+    private profileManager: ProfileManager
   ) { }
 
   ngOnInit() {
@@ -20,21 +20,24 @@ export class AppComponent implements OnInit {
     this.endpointManager.registerFacebookAuth('1504432696530015');
     this.endpointManager.registerMicrosoftAuth('e85cb43e-4521-498a-a6e2-e2d872c5760b');
   }
-  
+
   googleAuth() {
-    this.notify(this.authenticator.authenticate(DefaultEndpoints.Google));
+    this.notify(this.authenticator.authenticate(DefaultEndpoints.Google))
+      .then(() => { this.profileManager.load(DefaultEndpoints.Google); })      
   }
 
   microsoftAuth() {
-    this.notify(this.authenticator.authenticate(DefaultEndpoints.Microsoft));
+    this.notify(this.authenticator.authenticate(DefaultEndpoints.Microsoft))
+      .then(() => { this.profileManager.load(DefaultEndpoints.Microsoft); })
   }
 
   facebookAuth() {
-    this.notify(this.authenticator.authenticate(DefaultEndpoints.Facebook));
+    this.notify(this.authenticator.authenticate(DefaultEndpoints.Facebook))
+      .then(() => { this.profileManager.load(DefaultEndpoints.Facebook); })
   }
 
   private notify(promise: Promise<any>) {
-    promise.then(response => console.log(response))
+    return promise.then(response => console.log(response))
       .catch(error => console.error(error));
   }
 }

@@ -1,6 +1,18 @@
-import {Inject, Injectable} from '@angular/core'
-import {Observable} from 'rxjs/Rx';
-import {IEndpoint, IToken, Storage, StorageType} from '../helpers';
+import { Inject, Injectable } from '@angular/core'
+import { Observable } from 'rxjs/Rx';
+import { IEndpoint } from '../managers/endpoint.manager';
+import { Storage, StorageType } from '../helpers/storage';
+
+export interface IToken {
+    provider: string;
+    access_token?: string;
+    refresh_token?: string;
+    token_type?: string;
+    scope?: string;
+    state?: string;
+    expires_in?: string;
+    expires_at?: string;
+}
 
 @Injectable()
 export class TokenManager extends Storage<IToken> {

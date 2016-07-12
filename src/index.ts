@@ -1,3 +1,9 @@
-export * from './helpers';
-export * from './managers';
+export * from './helpers/dictionary';
+export * from './helpers/interfaces';
+export * from './helpers/storage';
+
+export * from './managers/endpoint.manager';
+export * from './managers/profile.manager';
+export * from './managers/token.manager';
+
 export * from './authenticator';

@@ -1,11 +1,27 @@
-import {Injectable} from '@angular/core'
-import {Storage, StorageType, IEndpoint} from '../helpers';
+import { Injectable } from '@angular/core'
+import { Storage, StorageType } from '../helpers/storage';
 
 export const DefaultEndpoints = {
     Google: 'Google',
     Microsoft: 'Microsoft',
     Facebook: 'Facebook'
 };
+
+export interface IEndpoint {
+    provider: string;
+    site?: string;
+    clientId?: string;
+    scope?: string;
+    state?: string;
+    authorizeUrl?: string;
+    redirectUrl?: string;
+    resource?: string;
+    profileUrl?: string;
+    nounce?: string;
+    responseType?: string;
+    protectedResources?: any;
+    windowSize?: string
+}
 
 @Injectable()
 export class EndpointManager extends Storage<IEndpoint> {

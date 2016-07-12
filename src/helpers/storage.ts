@@ -1,4 +1,4 @@
-import {Dictionary} from '../helpers';
+import { Dictionary } from './dictionary';
 
 export enum StorageType {
     LocalStorage,

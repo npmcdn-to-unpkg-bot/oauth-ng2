@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
-import {EndpointManager, TokenManager, ProfileManager} from './managers';
-import {IToken, IEndpoint} from './helpers';
+import {EndpointManager, TokenManager, ProfileManager, IToken, IEndpoint} from './';
 
 @Injectable()
 export class Authenticator {
