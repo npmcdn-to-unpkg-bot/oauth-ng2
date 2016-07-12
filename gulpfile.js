@@ -37,16 +37,8 @@ gulp.task('compile:ts', function () {
         .pipe(browserSync.stream());
 });
 
-// copy anything that is not a sass file or typescript file
-gulp.task('copy', function () {
-    gulp.src('!' + config.app.source + '/**/*.ts', { base: config.app.source })
-        .pipe(gulp.dest(config.app.dest))
-});
-
-gulp.task('build', ['copy']);
-
 // start webserver and observe files for changes
-gulp.task('serve', ['build'], function () {
+gulp.task('serve', ['compile:ts'], function () {
     browserSync.init(config.browserSync);
     gulp.watch(config.app.source + '/**/*.ts', ['compile:ts']);
     gulp.watch(config.browserSync.server.baseDir + '/**/*.*', ['copy'])
