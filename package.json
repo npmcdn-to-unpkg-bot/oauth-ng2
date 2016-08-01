@@ -1,6 +1,6 @@
 {
   "name": "oauth-ng2",
-  "description": "An open-source oauth authorization library for Angular2",
+  "description": "An open-source oauth authorization library for JQuery",
   "repository": "",
   "version": "0.1.0",
   "scripts": {
@@ -25,7 +25,8 @@
     "systemjs": "^0.19.31",
     "core-js": "^2.4.0",
     "rxjs": "5.0.0-beta.6",
-    "zone.js": "^0.6.12"
+    "zone.js": "^0.6.12",
+    "jquery": "^3.1.0"
   },
   "devDependencies": {
     "browser-sync": "^2.13.0",

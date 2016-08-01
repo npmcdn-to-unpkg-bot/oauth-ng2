@@ -1,47 +1,40 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Authenticator, EndpointManager, DefaultEndpoints, TokenManager, ProfileManager } from '../../src';
-import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'my-app',
   templateUrl: 'app/app.component.html',
-  providers: [Authenticator, EndpointManager, TokenManager, ProfileManager]
+  providers: [EndpointManager, TokenManager]
 })
 
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   profiles = {};
-  subscribers: Subscription[] = [];
+
+  private authenticator: Authenticator;
+  private profileManager: ProfileManager;
 
   constructor(
-    private authenticator: Authenticator,
     private endpointManager: EndpointManager,
-    private tokenManager: TokenManager,
-    private profileManager: ProfileManager
+    private tokenManager: TokenManager
   ) { }
 
   ngOnInit() {
+    this.authenticator = new Authenticator(this.endpointManager, this.tokenManager);
+    this.profileManager = new ProfileManager(this.endpointManager, this.tokenManager);
     this.endpointManager.registerGoogleAuth('255794345670-mmi8lbeifeb9pnstf3017vk8bcb83tlh.apps.googleusercontent.com');
     this.endpointManager.registerFacebookAuth('1504432696530015');
     this.endpointManager.registerMicrosoftAuth('e85cb43e-4521-498a-a6e2-e2d872c5760b');
     this.profiles = this.profileManager.lookup();
   }
 
-  ngOnDestroy() {
-    this.subscribers.forEach((subscription: Subscription) => {
-      subscription.unsubscribe();
-    });
-  }
-
   authenticate(provider: string) {
     this.notify(this.authenticator.authenticate(provider))
       .then(() => {
-        var subscription = this.profileManager.load(provider)
-          .subscribe(next => {
+        this.profileManager.load(provider)
+          .then(next => {
             if (this.profiles == null) this.profiles = {};
             this.profiles[provider] = next;
-          });
-
-        this.subscribers.push(subscription);
+          });        
       })
   }
 

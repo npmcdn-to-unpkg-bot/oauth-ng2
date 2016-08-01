@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core'
 import { Storage, StorageType } from '../helpers/storage';
 
 export const DefaultEndpoints = {
@@ -23,7 +22,6 @@ export interface IEndpoint {
     windowSize?: string
 }
 
-@Injectable()
 export class EndpointManager extends Storage<IEndpoint> {
     constructor() {
         super('OAuth2Endpoints', StorageType.LocalStorage);

@@ -2,6 +2,8 @@
   "name": "oauth-ng2",
   "dependencies": {},
   "globalDependencies": {
-    "core-js": "registry:dt/core-js#0.0.0+20160602141332"
+    "core-js": "registry:dt/core-js#0.0.0+20160602141332",
+    "jquery": "registry:dt/jquery#1.10.0+20160704162008",
+    "office-js": "registry:dt/office-js#0.0.0+20160627000258"
   }
 }

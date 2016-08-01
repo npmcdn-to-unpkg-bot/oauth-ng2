@@ -1,5 +1,3 @@
-import { Inject, Injectable } from '@angular/core'
-import { Observable } from 'rxjs/Rx';
 import { IEndpoint } from '../managers/endpoint.manager';
 import { Storage, StorageType } from '../helpers/storage';
 
@@ -11,17 +9,22 @@ export interface IToken {
     scope?: string;
     state?: string;
     expires_in?: string;
-    expires_at?: string;
+    expires_at?: Date;
 }
 
-@Injectable()
 export class TokenManager extends Storage<IToken> {
     constructor() {
         super('OAuth2Tokens', StorageType.LocalStorage);
     }
 
     setExpired(provider: string) {
-        // return (this._tokens.endpo && this.token.expires_at && this.token.expires_at < new Date());
+        var token = this.get(provider);
+        if (token == null) return null;
+        if (token.expires_at == null) {
+            token.expires_at = new Date(+token.expires_in - 5000);        
+        }
+
+        console.log(token);
     }
 
     getToken(segment: string, endpoint: IEndpoint, delimiter: string = '#'): Promise<IToken> {
@@ -41,7 +44,8 @@ export class TokenManager extends Storage<IToken> {
 
         let params = this._extractParams(rightPart);
         params.provider = endpoint.provider;
-        this.add(endpoint.provider, params);
+        this.setExpired(endpoint.provider);
+        this.add(endpoint.provider, params);    
         return Promise.resolve<IToken>(params);
     }
 

@@ -8,11 +8,11 @@ export interface IToken {
     scope?: string;
     state?: string;
     expires_in?: string;
-    expires_at?: string;
+    expires_at?: Date;
 }
 export declare class TokenManager extends Storage<IToken> {
     constructor();
-    setExpired(provider: string): void;
+    setExpired(provider: string): any;
     getToken(segment: string, endpoint: IEndpoint, delimiter?: string): Promise<IToken>;
     private _extractParams(segment);
 }
