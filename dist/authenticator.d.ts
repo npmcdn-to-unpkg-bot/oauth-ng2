@@ -5,5 +5,6 @@ export declare class Authenticator {
     constructor(_endpointManager: EndpointManager, _tokenManager: TokenManager);
     authenticate(provider: string, force?: boolean): Promise<IToken>;
     private _isTokenExpired(error);
-    private _openInPopup(endpoint);
+    private _openInWindowPopup(endpoint);
+    private _openInDialog(endpoint);
 }
