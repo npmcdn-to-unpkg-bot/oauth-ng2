@@ -81,6 +81,9 @@ export class Authenticator {
                         }
 
                         let token = JSON.parse(args.message);
+                        token.provider = endpoint.provider;
+                        this._tokenManager.add(endpoint.provider, token);
+                        this._tokenManager.setExpired(endpoint.provider);
                         resolve(token);
                     }
                     catch (exception) {

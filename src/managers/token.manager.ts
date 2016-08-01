@@ -44,8 +44,8 @@ export class TokenManager extends Storage<IToken> {
 
         let params = this._extractParams(rightPart);
         params.provider = endpoint.provider;
-        this.setExpired(endpoint.provider);
-        this.add(endpoint.provider, params);    
+        this.add(endpoint.provider, params);
+        this.setExpired(endpoint.provider);        
         return Promise.resolve<IToken>(params);
     }
 

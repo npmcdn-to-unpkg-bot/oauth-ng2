@@ -60,7 +60,7 @@ export class EndpointManager extends Storage<IEndpoint> {
             profileUrl: 'https://graph.microsoft.com/v1.0/me',
             site: 'https://login.microsoftonline.com/common/oauth2/v2.0',
             authorizeUrl: '/authorize',
-            resource: 'https://login.live.com',
+            resource: 'https://graph.microsoft.com',
             responseType: 'token',
             scope: scope || 'https://graph.microsoft.com/user.read',
             extraParameters: '&response_mode=fragment'
