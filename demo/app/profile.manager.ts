@@ -1,6 +1,4 @@
-import { Storage, StorageType } from '../helpers/storage';
-import { TokenManager } from '../managers/token.manager';
-import { EndpointManager } from '../managers/endpoint.manager';
+import { Storage, StorageType, TokenManager, EndpointManager } from '../../src';
 
 export class ProfileManager extends Storage<any> {
     constructor(

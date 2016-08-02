@@ -14,7 +14,7 @@ export interface IEndpoint {
     redirectUrl?: string;
     resource?: string;
     profileUrl?: string;
-    nounce?: string;
+    nonce?: string;
     responseType?: string;
     protectedResources?: any;
     windowSize?: string;

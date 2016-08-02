@@ -3,6 +3,7 @@ import { Storage, StorageType } from '../helpers/storage';
 
 export interface IToken {
     provider: string;
+    id_token?: string;
     access_token?: string;
     refresh_token?: string;
     token_type?: string;
@@ -18,10 +19,11 @@ export class TokenManager extends Storage<IToken> {
     }
 
     setExpired(provider: string) {
+        var expire = (seconds: any = 3600) => new Date(new Date().getTime() + ~~seconds * 1000);
         var token = this.get(provider);
         if (token == null) return null;
         if (token.expires_at == null) {
-            token.expires_at = new Date(+token.expires_in - 5000);        
+            token.expires_at = expire(token.expires_in);
         }
 
         console.log(token);
@@ -45,7 +47,7 @@ export class TokenManager extends Storage<IToken> {
         let params = this._extractParams(rightPart);
         params.provider = endpoint.provider;
         this.add(endpoint.provider, params);
-        this.setExpired(endpoint.provider);        
+        this.setExpired(endpoint.provider);
         return Promise.resolve<IToken>(params);
     }
 

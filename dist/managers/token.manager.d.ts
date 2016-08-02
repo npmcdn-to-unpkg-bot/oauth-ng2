@@ -2,6 +2,7 @@ import { IEndpoint } from '../managers/endpoint.manager';
 import { Storage } from '../helpers/storage';
 export interface IToken {
     provider: string;
+    id_token?: string;
     access_token?: string;
     refresh_token?: string;
     token_type?: string;

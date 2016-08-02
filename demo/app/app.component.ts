@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Authenticator, EndpointManager, DefaultEndpoints, TokenManager, ProfileManager } from '../../src';
+import { Authenticator, EndpointManager, DefaultEndpoints, TokenManager } from '../../src';
+import { ProfileManager } from './profile.manager';
 
 @Component({
   selector: 'my-app',

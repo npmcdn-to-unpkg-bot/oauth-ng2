@@ -2,6 +2,7 @@ import { Storage, StorageType } from '../helpers/storage';
 
 export const DefaultEndpoints = {
     Google: 'Google',
+    Enterprise: 'Enterprise',
     Microsoft: 'Microsoft',
     Facebook: 'Facebook'
 };
@@ -16,7 +17,7 @@ export interface IEndpoint {
     redirectUrl?: string;
     resource?: string;
     profileUrl?: string;
-    nounce?: string;
+    nonce?: string;
     responseType?: string;
     protectedResources?: any;
     windowSize?: string
@@ -52,6 +53,23 @@ export class EndpointManager extends Storage<IEndpoint> {
         this.add(config.provider, config);
     };
 
+    registerEnterpriseAuth(clientId: string, redirect_uri?: string, scope?: string) {
+        var config = <IEndpoint>{
+            provider: DefaultEndpoints.Enterprise,
+            clientId: clientId,
+            redirectUrl: redirect_uri || this.currentHost,
+            profileUrl: 'https://graph.microsoft.com/v1.0/me',
+            site: 'https://login.microsoftonline.com/common/oauth2/v2.0',
+            authorizeUrl: '/authorize',
+            resource: 'https://graph.microsoft.com',
+            responseType: 'token',
+            scope: scope || 'https://graph.microsoft.com/user.read',
+            extraParameters: '&response_mode=fragment'
+        };
+
+        this.add(config.provider, config);
+    };
+
     registerMicrosoftAuth(clientId: string, redirect_uri?: string, scope?: string) {
         var config = <IEndpoint>{
             provider: DefaultEndpoints.Microsoft,
@@ -61,8 +79,8 @@ export class EndpointManager extends Storage<IEndpoint> {
             site: 'https://login.microsoftonline.com/common/oauth2/v2.0',
             authorizeUrl: '/authorize',
             resource: 'https://graph.microsoft.com',
-            responseType: 'token',
-            scope: scope || 'https://graph.microsoft.com/user.read',
+            responseType: 'id_token+token',
+            scope: scope || 'openid https://graph.microsoft.com/user.read',
             extraParameters: '&response_mode=fragment'
         };
 
@@ -86,22 +104,22 @@ export class EndpointManager extends Storage<IEndpoint> {
     };
 
     static getLoginUrl(endpointConfig: IEndpoint): string {
+        var rand = (limit = 10, start = 0) => Math.floor(Math.random() * limit + start);
+
         var oAuthScope = (endpointConfig.scope) ? encodeURIComponent(endpointConfig.scope) : '',
-            state = (endpointConfig.state) ? encodeURIComponent(endpointConfig.state) : '',
+            state = (endpointConfig.state) ? encodeURIComponent(endpointConfig.state) : rand(10000),
+            nonce = (endpointConfig.nonce) ? encodeURIComponent(endpointConfig.nonce) : rand(10000),
             authPathHasQuery = (endpointConfig.authorizeUrl.indexOf('?') === -1) ? false : true,
             appendChar = (authPathHasQuery) ? '&' : '?',
-            responseType = (endpointConfig.responseType) ? encodeURIComponent(endpointConfig.responseType) : '';
+            responseType = endpointConfig.responseType
 
         var url = endpointConfig.site + endpointConfig.authorizeUrl + appendChar +
             'response_type=' + responseType + '&' +
             'client_id=' + encodeURIComponent(endpointConfig.clientId) + '&' +
             'redirect_uri=' + encodeURIComponent(endpointConfig.redirectUrl) + '&' +
             'scope=' + oAuthScope + '&' +
-            'state=' + state;
-
-        var random = new Uint16Array(1);
-        crypto.getRandomValues(random);
-        url = url + '&nounce=' + random[0];
+            'state=' + state + '&' +
+            'nonce=' + nonce;
 
         return url;
     }
