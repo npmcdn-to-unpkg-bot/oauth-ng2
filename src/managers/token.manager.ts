@@ -25,8 +25,6 @@ export class TokenManager extends Storage<IToken> {
         if (token.expires_at == null) {
             token.expires_at = expire(token.expires_in);
         }
-
-        console.log(token);
     }
 
     getToken(segment: string, endpoint: IEndpoint, delimiter: string = '#'): Promise<IToken> {

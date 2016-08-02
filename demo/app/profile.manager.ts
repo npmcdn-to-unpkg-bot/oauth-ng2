@@ -1,24 +1,18 @@
 import { Storage, StorageType, TokenManager, EndpointManager } from '../../src';
 
 export class ProfileManager extends Storage<any> {
-    constructor(
-        private _endpointManager: EndpointManager,
-        private _tokenManager: TokenManager
-    ) {
+    constructor(private _tokenManager: TokenManager) {
         super('OAuth2Profiles', StorageType.LocalStorage);
     }
 
-    load(provider: string, force: boolean = false): Promise<any> {
+    load(provider: string, url: string, force: boolean = false): Promise<any> {
         var cached = this.get(provider);
         if (cached != null && !force) {
             return Promise.resolve(cached);
         }
 
         var token = this._tokenManager.get(provider);
-        var endpoint = this._endpointManager.get(provider);
-        if (endpoint.profileUrl == null) return Promise.resolve(null);
-
-        var xhr = $.ajax(endpoint.profileUrl, {
+        var xhr = $.ajax(url, {
             dataType: 'json',
             headers: { 'Authorization': 'Bearer ' + token.access_token }
         }).then(response => {

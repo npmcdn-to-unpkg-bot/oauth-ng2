@@ -76,6 +76,10 @@ footer.page-footer {
   background-image: url('/assets/facebook.png');
 }
 
+.icon.stackexchange {
+  background-image: url('/assets/stackexchange.png');
+}
+
 .demo-container {
   margin-bottom: 40px;  
 }

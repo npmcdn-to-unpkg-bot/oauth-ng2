@@ -1,4 +1,4 @@
-import {EndpointManager, TokenManager, IToken, IEndpoint} from './';
+import {EndpointManager, TokenManager, IToken, IEndpoint} from './managers';
 declare var Microsoft: any;
 
 export class Authenticator {

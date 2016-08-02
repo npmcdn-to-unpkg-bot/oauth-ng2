@@ -20,7 +20,7 @@
         <h4>Demo</h4>
       </div>
 
-      <div class="col s12 m4">
+      <div class="col s12 m3">
         <div class="icon-block center">
           <i class="icon google waves-effect waves-light" (click)="authenticate('Google')"></i>
           <h4 class="name thin">{{ profiles?.Google?.displayName }}</h4>
@@ -28,7 +28,7 @@
         </div>
       </div>
 
-      <div class="col s12 m4">
+      <div class="col s12 m3">
         <div class="icon-block center">
           <i class="icon microsoft waves-effect waves-light" (click)="authenticate('Microsoft')"></i>
           <h4 class="name thin">{{ profiles?.Microsoft?.displayName }}</h4>
@@ -36,11 +36,19 @@
         </div>
       </div>
 
-      <div class="col s12 m4">
+      <div class="col s12 m3">
         <div class="icon-block center">
           <i class="icon facebook waves-effect waves-light" (click)="authenticate('Facebook')"></i>
           <h4 class="name thin">{{ profiles?.Facebook?.name }}</h4>
           <em class="id light">{{ profiles?.Facebook?.id }}</em>
+        </div>
+      </div>
+
+      <div class="col s12 m3">
+        <div class="icon-block center">
+          <i class="icon stackexchange waves-effect waves-light" (click)="authenticate('StackExchange')"></i>
+          <h4 class="name thin">{{ profiles?.StackExchange?.name }}</h4>
+          <em class="id light">{{ profiles?.StackExchange?.id }}</em>
         </div>
       </div>
     </div>
