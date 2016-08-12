@@ -1,4 +1,3 @@
-import { IEndpoint } from '../managers/endpoint.manager';
 import { Storage } from '../helpers/storage';
 export interface IToken {
     provider: string;
@@ -11,9 +10,36 @@ export interface IToken {
     expires_in?: string;
     expires_at?: Date;
 }
+/**
+ * Helper for caching and managing OAuth Tokens.
+ */
 export declare class TokenManager extends Storage<IToken> {
+    /**
+     * @constructor
+    */
     constructor();
-    setExpired(provider: string): any;
-    getToken(segment: string, endpoint: IEndpoint, delimiter?: string): Promise<IToken>;
-    private _extractParams(segment);
+    /**
+     * Compute the expiration date based on the expires_in field in a OAuth token.
+     */
+    setExpired(token: IToken): any;
+    /**
+     * Extends Storage's default add method
+     * Adds a new OAuth Token after settings its expiry
+     *
+     * @param {string} provider Unique name of the corresponding OAuth Endpoint.
+     * @param {object} config valid Token
+     * @see {@link IEndpoint}.
+     * @return {object} Returns the added endpoint.
+     */
+    add(provider: string, value: IToken): IToken;
+    /**
+     * Extract the token from the URL
+     *
+     * @param {string} url The url to extract the token from.
+     * @param {string} exclude Exclude a particlaur string from the url, such as a query param or specific substring.
+     * @param {string} delimiter[optional] Delimiter used by OAuth provider to mark the beginning of token response. Defaults to #.
+     * @return {object} Returns the extracted token.
+     */
+    static getToken(url: string, exclude?: string, delimiter?: string): IToken;
+    private static _extractParams(segment);
 }

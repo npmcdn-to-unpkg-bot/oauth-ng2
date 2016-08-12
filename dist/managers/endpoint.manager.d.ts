@@ -5,26 +5,74 @@ export declare const DefaultEndpoints: {
     Facebook: string;
 };
 export interface IEndpoint {
-    provider: string;
-    site?: string;
+    provider?: string;
     clientId?: string;
-    scope?: string;
-    state?: string;
+    baseUrl?: string;
     authorizeUrl?: string;
     redirectUrl?: string;
+    scope?: string;
     resource?: string;
-    profileUrl?: string;
-    nonce?: string;
+    state?: boolean;
+    nonce?: boolean;
     responseType?: string;
-    protectedResources?: any;
+    extraQueryParameters?: string;
     windowSize?: string;
 }
+/**
+ * Helper for creating and registering OAuth Endpoints.
+ */
 export declare class EndpointManager extends Storage<IEndpoint> {
+    /**
+     * @constructor
+    */
     constructor();
     private _currentHost;
+    /**
+     * Gets the current url to be specified as the default redirect url.
+     */
     currentHost: string;
-    registerGoogleAuth(clientId: string, redirect_uri?: string, scope?: string): void;
-    registerMicrosoftAuth(clientId: string, redirect_uri?: string, scope?: string): void;
-    registerFacebookAuth(clientId: string, redirect_uri?: string, scope?: string): void;
+    /**
+     * Extends Storage's default add method
+     * Registers a new OAuth Endpoint
+     *
+     * @param {string} provider Unique name for the registered OAuth Endpoint.
+     * @param {object} config Valid Endpoint configuration
+     * @see {@link IEndpoint}.
+     * @return {object} Returns the added endpoint.
+     */
+    add(provider: string, config: IEndpoint): IEndpoint;
+    /**
+     * Register Google Implicit OAuth
+     * The default scope is limited to basic profile
+     *
+     * @param {string} clientId ClientID for the Google App
+     * @param {object} config Valid Endpoint configuration to override the defaults
+     * @return {object} Returns the added endpoint.
+     */
+    registerGoogleAuth(clientId: string, overrides?: IEndpoint): IEndpoint;
+    /**
+     * Register Microsoft Implicit OAuth
+     * The default scope is limited to basic profile
+     *
+     * @param {string} clientId ClientID for the Microsoft App
+     * @param {object} config Valid Endpoint configuration to override the defaults
+     * @return {object} Returns the added endpoint.
+     */
+    registerMicrosoftAuth(clientId: string, overrides?: IEndpoint): void;
+    /**
+     * Register Facebook Implicit OAuth
+     * The default scope is limited to basic profile
+     *
+     * @param {string} clientId ClientID for the Facebook App
+     * @param {object} config Valid Endpoint configuration to override the defaults
+     * @return {object} Returns the added endpoint.
+     */
+    registerFacebookAuth(clientId: string, overrides?: IEndpoint): void;
+    /**
+     * Helper to generate the OAuth login url
+     *
+     * @param {object} config Valid Endpoint configuration
+     * @return {object} Returns the added endpoint.
+     */
     static getLoginUrl(endpointConfig: IEndpoint): string;
 }

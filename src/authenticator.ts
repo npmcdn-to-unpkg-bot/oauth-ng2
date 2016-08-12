@@ -1,13 +1,37 @@
-import {EndpointManager, TokenManager, IToken, IEndpoint} from './managers';
+import {EndpointManager, IEndpoint} from './managers/endpoint.manager';
+import {TokenManager, IToken} from './managers/token.manager';
+
 declare var Microsoft: any;
 
+/**
+ * Helper for performing Implicit OAuth Authentication with registered endpoints. 
+ */
 export class Authenticator {
+    /**
+     * @constructor
+     * 
+     * @param endpointManager Depends on an instance of EndpointManager
+     * @param TokenManager Depends on an instance of TokenManager
+    */
     constructor(
         private _endpointManager: EndpointManager,
         private _tokenManager: TokenManager
     ) {
     }
 
+    /**
+     * Authenticate based on the given provider
+     * Either uses DialogAPI or Window Popups based on where its being called from
+     * viz. Add-in or Web.
+     * If the token was cached, the it retrieves the cached token.
+     * 
+     * WARNING: you have to manually check the expires_in or expires_at property to determine
+     * if the token has expired. Not all OAuth providers support refresh token flows. 
+     * 
+     * @param {string} provider Link to the provider.
+     * @param {boolean} force Force re-authentication.
+     * @return {Promise<IToken>} Returns a promise of the token.
+     */
     authenticate(provider: string, force: boolean = false): Promise<IToken> {
         let token = this._tokenManager.get(provider);
         if (token != null && !force) return Promise.resolve(token);
@@ -15,14 +39,28 @@ export class Authenticator {
         let endpoint = this._endpointManager.get(provider);
 
         var auth;
-        if (window.hasOwnProperty('Office')) auth = this._openInDialog(endpoint);
+        if (Authenticator.isAddin) auth = this._openInDialog(endpoint);
         else auth = this._openInWindowPopup(endpoint);
 
-        return auth.catch(error => this._isTokenExpired(error));
+        return auth.catch(error => console.error(error));
     }
 
-    private _isTokenExpired(error) {
+    /**
+     * Check if the supplied url has either access_token or code or error 
+     */
+    static isTokenUrl(url: string) {
+        var regex = /(access_token|code|error)/gi;
+        return regex.test(url);
+    }
 
+    static get isAddin() {
+        return window.hasOwnProperty('Office') &&
+         (
+             window.hasOwnProperty('Word') ||
+             window.hasOwnProperty('Excel') ||
+             window.hasOwnProperty('PowerPoint') ||
+             window.hasOwnProperty('OneNote')
+         ) 
     }
 
     private _openInWindowPopup(endpoint: IEndpoint) {
@@ -37,7 +75,8 @@ export class Authenticator {
                     try {
                         if (popupWindow.document.URL.indexOf(endpoint.redirectUrl) !== -1) {
                             clearInterval(interval);
-                            let token = this._tokenManager.getToken(popupWindow.document.URL, endpoint)
+                            let token = TokenManager.getToken(popupWindow.document.URL, endpoint.redirectUrl);
+                            this._tokenManager.add(endpoint.provider, token);
                             popupWindow.close();
                             resolve(token);
                         }
@@ -57,12 +96,12 @@ export class Authenticator {
         });
     }
 
-    private _openInDialog(endpoint: IEndpoint) {
+    private _openInDialog(endpoint: IEndpoint) {        
         let url = EndpointManager.getLoginUrl(endpoint);
 
         var options: Office.DialogOptions = {
-            height: 60,
-            width: 40,
+            height: 35,
+            width: 35,
             requireHTTPS: true
         };
 
@@ -80,10 +119,8 @@ export class Authenticator {
                             reject(JSON.parse(args.message));
                         }
 
-                        let token = JSON.parse(args.message);
-                        token.provider = endpoint.provider;
-                        this._tokenManager.add(endpoint.provider, token);
-                        this._tokenManager.setExpired(endpoint.provider);
+                        let token = JSON.parse(args.message);                        
+                        this._tokenManager.add(endpoint.provider, token);                        
                         resolve(token);
                     }
                     catch (exception) {

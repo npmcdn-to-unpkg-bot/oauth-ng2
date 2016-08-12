@@ -1,8 +1,10 @@
 {
-  "name": "oauth-ng2",
-  "description": "An open-source oauth authorization library for JQuery",
+  "name": "oauth-addins",
+  "description": "An open-source oauth authorization library for Office Add-ins",
   "repository": "",
   "version": "0.1.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",    
   "scripts": {
     "start": "tsc && concurrently \"npm run tsc:w\" \"npm run lite\"",
     "lite": "lite-server -c server.js",

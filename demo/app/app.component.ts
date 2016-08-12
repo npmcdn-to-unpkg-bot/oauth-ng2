@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import * as OAuth2 from '../oauth2.js';
+import { Authenticator, EndpointManager, TokenManager, DefaultEndpoints } from '../../src';
 import { ProfileManager } from './profile.manager';
 
 @Component({
@@ -14,6 +14,12 @@ export class AppComponent implements OnInit {
 
   private authenticator: Authenticator;
   private profileManager: ProfileManager;
+  debug = {
+    url: window.location.href,
+    isToken: Authenticator.isTokenUrl(window.location.href),
+    token: TokenManager.getToken(window.location.href, 'https://localhost:3000'),
+    isAddin: Authenticator.isAddin
+  }
 
   constructor(
     private endpointManager: EndpointManager,
@@ -26,25 +32,40 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Instantiate authenticator
     this.authenticator = new Authenticator(this.endpointManager, this.tokenManager);
+
+    // Instantiate our custom profile manager which uses the helpers  
     this.profileManager = new ProfileManager(this.tokenManager);
+
+    // Register Google OAuth 
     this.endpointManager.registerGoogleAuth('255794345670-mmi8lbeifeb9pnstf3017vk8bcb83tlh.apps.googleusercontent.com');
+
+    // Register Facebook OAuth
     this.endpointManager.registerFacebookAuth('1504432696530015');
+
+    // Register Microsoft OAuth
     this.endpointManager.registerMicrosoftAuth('e85cb43e-4521-498a-a6e2-e2d872c5760b');
+
+    // Demo showing custom endpoint registration
     this.endpointManager.add('StackExchange', {
       clientId: '7613',
       scope: 'no_expiry',
-      baseUrl: 'https://stackexchange.com',      
+      baseUrl: 'https://stackexchange.com',
       authorizeUrl: '/oauth',
       responseType: 'token',
       state: true
     });
+
     this.profiles = this.profileManager.lookup();
   }
 
   authenticate(provider: string) {
     this.notify(this.authenticator.authenticate(provider))
       .then(() => {
+
+        // our custom profile manager, reuses the TokenManager helper to get 
+        // the appropriate token
         this.profileManager.load(provider, this.profileUrls[provider])
           .then(next => {
             if (this.profiles == null) this.profiles = {};

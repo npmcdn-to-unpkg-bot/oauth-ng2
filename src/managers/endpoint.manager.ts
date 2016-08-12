@@ -41,12 +41,21 @@ export interface IEndpoint {
     windowSize?: string;
 }
 
+/**
+ * Helper for creating and registering OAuth Endpoints.
+ */
 export class EndpointManager extends Storage<IEndpoint> {
-    constructor() {
+    /**
+     * @constructor                  
+    */
+    constructor() {        
         super('OAuth2Endpoints', StorageType.LocalStorage);
     }
 
     private _currentHost: string;
+    /**
+     * Gets the current url to be specified as the default redirect url.          
+     */
     get currentHost(): string {
         if (this._currentHost == null) {
             this._currentHost = window.location.protocol + "//" + window.location.host;
@@ -55,12 +64,29 @@ export class EndpointManager extends Storage<IEndpoint> {
         return this._currentHost;
     }
 
+    /**
+     * Extends Storage's default add method
+     * Registers a new OAuth Endpoint
+     *
+     * @param {string} provider Unique name for the registered OAuth Endpoint.
+     * @param {object} config Valid Endpoint configuration
+     * @see {@link IEndpoint}.
+     * @return {object} Returns the added endpoint.
+     */
     add(provider: string, config: IEndpoint): IEndpoint {
         if (config.redirectUrl == null) config.redirectUrl = this.currentHost;
         config.provider = provider;
         return super.add(provider, config);
     }
 
+    /**
+     * Register Google Implicit OAuth
+     * The default scope is limited to basic profile
+     * 
+     * @param {string} clientId ClientID for the Google App
+     * @param {object} config Valid Endpoint configuration to override the defaults     
+     * @return {object} Returns the added endpoint.
+     */
     registerGoogleAuth(clientId: string, overrides?: IEndpoint) {
         var defaults = <IEndpoint>{
             clientId: clientId,
@@ -72,9 +98,17 @@ export class EndpointManager extends Storage<IEndpoint> {
         };
 
         var config = extend({}, defaults, overrides);
-        this.add(DefaultEndpoints.Google, config);
+        return this.add(DefaultEndpoints.Google, config);
     };
 
+    /**
+     * Register Microsoft Implicit OAuth
+     * The default scope is limited to basic profile
+     * 
+     * @param {string} clientId ClientID for the Microsoft App
+     * @param {object} config Valid Endpoint configuration to override the defaults     
+     * @return {object} Returns the added endpoint.
+     */
     registerMicrosoftAuth(clientId: string, overrides?: IEndpoint) {
         var defaults = <IEndpoint>{
             clientId: clientId,
@@ -92,6 +126,14 @@ export class EndpointManager extends Storage<IEndpoint> {
         this.add(DefaultEndpoints.Microsoft, config);
     };
 
+    /**
+     * Register Facebook Implicit OAuth
+     * The default scope is limited to basic profile
+     * 
+     * @param {string} clientId ClientID for the Facebook App
+     * @param {object} config Valid Endpoint configuration to override the defaults     
+     * @return {object} Returns the added endpoint.
+     */
     registerFacebookAuth(clientId: string, overrides?: IEndpoint) {
         var defaults = <IEndpoint>{
             clientId: clientId,
@@ -108,6 +150,12 @@ export class EndpointManager extends Storage<IEndpoint> {
         this.add(DefaultEndpoints.Facebook, config);
     };
 
+    /**
+     * Helper to generate the OAuth login url
+     *      
+     * @param {object} config Valid Endpoint configuration     
+     * @return {object} Returns the added endpoint.
+     */
     static getLoginUrl(endpointConfig: IEndpoint): string {
         var rand = (limit = 10, start = 0) => Math.floor(Math.random() * limit + start);
 

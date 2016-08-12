@@ -1,4 +1,4 @@
-import { Storage, StorageType, TokenManager, EndpointManager } from '../../src';
+import { Storage, StorageType, TokenManager} from '../../src';
 
 export class ProfileManager extends Storage<any> {
     constructor(private _tokenManager: TokenManager) {

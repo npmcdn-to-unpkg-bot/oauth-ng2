@@ -14,7 +14,7 @@ module.exports = {
             })
         },
         routes: {
-            '/src': 'dist'
+            '/src': 'src'
         }
     }
 }
