@@ -15,9 +15,9 @@ export class AppComponent implements OnInit {
   private authenticator: Authenticator;
   private profileManager: ProfileManager;
   debug = {
-    url: window.location.href,
-    isToken: Authenticator.isTokenUrl(window.location.href),
-    token: TokenManager.getToken(window.location.href, 'https://localhost:3000'),
+    url: location.href,
+    isToken: Authenticator.isTokenUrl(location.href),
+    token: TokenManager.getToken(location.href, location.origin),
     isAddin: Authenticator.isAddin
   }
 

@@ -31,6 +31,11 @@ export declare class Authenticator {
      * Check if the supplied url has either access_token or code or error
      */
     static isTokenUrl(url: string): boolean;
+    /**
+     * Check if the code is running inside of an Addin or Web Context.
+     * The checks for Office and Word, Excel or OneNote objects.
+     */
+    private static _isAddin;
     static isAddin: boolean;
     private _openInWindowPopup(endpoint);
     private _openInDialog(endpoint);

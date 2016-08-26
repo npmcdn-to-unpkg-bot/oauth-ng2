@@ -53,14 +53,25 @@ export class Authenticator {
         return regex.test(url);
     }
 
+    /**
+     * Check if the code is running inside of an Addin or Web Context.
+     * The checks for Office and Word, Excel or OneNote objects.
+     */
+    private static _isAddin: boolean;
     static get isAddin() {
-        return window.hasOwnProperty('Office') &&
-         (
-             window.hasOwnProperty('Word') ||
-             window.hasOwnProperty('Excel') ||
-             window.hasOwnProperty('PowerPoint') ||
-             window.hasOwnProperty('OneNote')
-         ) 
+        Authenticator._isAddin =
+            window.hasOwnProperty('Office') &&
+            (
+                window.hasOwnProperty('Word') ||
+                window.hasOwnProperty('Excel') ||
+                window.hasOwnProperty('OneNote')
+            );
+
+        return Authenticator._isAddin;
+    }
+
+    static set isAddin(value: boolean) {
+        Authenticator._isAddin = true;
     }
 
     private _openInWindowPopup(endpoint: IEndpoint) {
@@ -96,7 +107,7 @@ export class Authenticator {
         });
     }
 
-    private _openInDialog(endpoint: IEndpoint) {        
+    private _openInDialog(endpoint: IEndpoint) {
         let url = EndpointManager.getLoginUrl(endpoint);
 
         var options: Office.DialogOptions = {
@@ -119,8 +130,8 @@ export class Authenticator {
                             reject(JSON.parse(args.message));
                         }
 
-                        let token = JSON.parse(args.message);                        
-                        this._tokenManager.add(endpoint.provider, token);                        
+                        let token = JSON.parse(args.message);
+                        this._tokenManager.add(endpoint.provider, token);
                         resolve(token);
                     }
                     catch (exception) {
