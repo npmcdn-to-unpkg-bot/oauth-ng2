@@ -1,5 +1,7 @@
+import { Injectable } from '@angular/core';
 import { Storage, StorageType, TokenManager} from '../../src';
 
+@Injectable()
 export class ProfileManager extends Storage<any> {
     constructor(private _tokenManager: TokenManager) {
         super('OAuth2Profiles', StorageType.LocalStorage);

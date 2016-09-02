@@ -5,39 +5,34 @@ import { ProfileManager } from './profile.manager';
 @Component({
   selector: 'my-app',
   templateUrl: 'app/app.component.html',
-  providers: [EndpointManager, TokenManager]
+  providers: [EndpointManager, TokenManager, ProfileManager]
 })
 
 export class AppComponent implements OnInit {
   profiles = {};
   profileUrls = {};
 
-  private authenticator: Authenticator;
-  private profileManager: ProfileManager;
   debug = {
     url: location.href,
-    isToken: Authenticator.isTokenUrl(location.href),
-    token: TokenManager.getToken(location.href, location.origin),
+    token: TokenManager.getToken(location.href, location.origin) as any,
     isAddin: Authenticator.isAddin
   }
 
+  private authenticator: any;
+
   constructor(
     private endpointManager: EndpointManager,
-    private tokenManager: TokenManager
+    private tokenManager: TokenManager,
+    private profileManager: ProfileManager
   ) {
     this.profileUrls[DefaultEndpoints.Facebook] = "https://graph.facebook.com/v2.5/me";
     this.profileUrls[DefaultEndpoints.Microsoft] = "https://graph.microsoft.com/beta/me";
     this.profileUrls[DefaultEndpoints.Google] = "https://www.googleapis.com/plus/v1/people/me";
     this.profileUrls['StackExchange'] = "https://api.stackexchange.com/2.2/me?order=desc&sort=reputation&site=stackoverflow";
+    this.authenticator = new Authenticator(this.endpointManager, this.tokenManager);
   }
 
   ngOnInit() {
-    // Instantiate authenticator
-    this.authenticator = new Authenticator(this.endpointManager, this.tokenManager);
-
-    // Instantiate our custom profile manager which uses the helpers  
-    this.profileManager = new ProfileManager(this.tokenManager);
-
     // Register Google OAuth 
     this.endpointManager.registerGoogleAuth('255794345670-mmi8lbeifeb9pnstf3017vk8bcb83tlh.apps.googleusercontent.com');
 

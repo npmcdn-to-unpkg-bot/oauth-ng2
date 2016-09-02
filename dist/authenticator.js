@@ -2,6 +2,21 @@
 var endpoint_manager_1 = require('./managers/endpoint.manager');
 var token_manager_1 = require('./managers/token.manager');
 /**
+ * Enumeration for the supported modes of Authentication.
+ * Either dialog or redirection.
+ */
+(function (AuthenticationMode) {
+    /**
+     * Opens a the authorize url inside of a dialog.
+     */
+    AuthenticationMode[AuthenticationMode["Dialog"] = 0] = "Dialog";
+    /**
+     * Redirects the current window to the authorize url.
+     */
+    AuthenticationMode[AuthenticationMode["Redirect"] = 1] = "Redirect";
+})(exports.AuthenticationMode || (exports.AuthenticationMode = {}));
+var AuthenticationMode = exports.AuthenticationMode;
+/**
  * Helper for performing Implicit OAuth Authentication with registered endpoints.
  */
 var Authenticator = (function () {
@@ -14,6 +29,12 @@ var Authenticator = (function () {
     function Authenticator(_endpointManager, _tokenManager) {
         this._endpointManager = _endpointManager;
         this._tokenManager = _tokenManager;
+        if (_endpointManager == null)
+            throw 'Please pass an instance of EndpointManager.';
+        if (_tokenManager == null)
+            throw 'Please pass an instance of TokenManager.';
+        if (_endpointManager.count == 0)
+            throw 'No registered Endpoints could be found. Either use the default endpoint registrations or add one manually';
     }
     /**
      * Authenticate based on the given provider
@@ -34,31 +55,56 @@ var Authenticator = (function () {
         if (token != null && !force)
             return Promise.resolve(token);
         var endpoint = this._endpointManager.get(provider);
-        var auth;
-        if (Authenticator.isAddin)
-            auth = this._openInDialog(endpoint);
-        else
-            auth = this._openInWindowPopup(endpoint);
-        return auth.catch(function (error) { return console.error(error); });
+        if (Authenticator.mode == AuthenticationMode.Redirect) {
+            var url = endpoint_manager_1.EndpointManager.getLoginUrl(endpoint);
+            location.replace(url);
+            return Promise.reject('AUTH_REDIRECT');
+        }
+        else {
+            var auth;
+            if (Authenticator.isAddin)
+                auth = this._openInDialog(endpoint);
+            else
+                auth = this._openInWindowPopup(endpoint);
+            return auth.catch(function (error) { return console.error(error); });
+        }
     };
-    /**
-     * Check if the supplied url has either access_token or code or error
-     */
-    Authenticator.isTokenUrl = function (url) {
-        var regex = /(access_token|code|error)/gi;
-        return regex.test(url);
-    };
+    Object.defineProperty(Authenticator, "isDialog", {
+        /**
+         * Check if the currrent url is running inside of a Dialog that contains an access_token or code or error.
+         * If true then it calls messageParent by extracting the token information.
+         *
+         * @return {boolean}
+         * Returns false if the code is running inside of a dialog without the requried information
+         * or is not running inside of a dialog at all.
+         */
+        get: function () {
+            if (!Authenticator.isAddin)
+                return false;
+            else {
+                if (!token_manager_1.TokenManager.isTokenUrl(location.href))
+                    return false;
+                var token = token_manager_1.TokenManager.getToken(location.href, location.origin);
+                Office.context.ui.messageParent(JSON.stringify(token));
+                return true;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Authenticator, "isAddin", {
         get: function () {
-            Authenticator._isAddin =
-                window.hasOwnProperty('Office') &&
-                    (window.hasOwnProperty('Word') ||
-                        window.hasOwnProperty('Excel') ||
-                        window.hasOwnProperty('OneNote'));
+            if (Authenticator._isAddin == null) {
+                Authenticator._isAddin =
+                    window.hasOwnProperty('Office') &&
+                        (window.hasOwnProperty('Word') ||
+                            window.hasOwnProperty('Excel') ||
+                            window.hasOwnProperty('OneNote'));
+            }
             return Authenticator._isAddin;
         },
         set: function (value) {
-            Authenticator._isAddin = true;
+            Authenticator._isAddin = value;
         },
         enumerable: true,
         configurable: true
@@ -75,10 +121,21 @@ var Authenticator = (function () {
                     try {
                         if (popupWindow.document.URL.indexOf(endpoint.redirectUrl) !== -1) {
                             clearInterval(interval_1);
-                            var token = token_manager_1.TokenManager.getToken(popupWindow.document.URL, endpoint.redirectUrl);
-                            _this._tokenManager.add(endpoint.provider, token);
-                            popupWindow.close();
-                            resolve(token);
+                            var result = token_manager_1.TokenManager.getToken(popupWindow.document.URL, endpoint.redirectUrl);
+                            if (result == null)
+                                reject('No access_token or code could be parsed.');
+                            else if ('code' in result) {
+                                popupWindow.close();
+                                resolve(result);
+                            }
+                            else if ('access_token' in result) {
+                                _this._tokenManager.add(endpoint.provider, result);
+                                popupWindow.close();
+                                resolve(result);
+                            }
+                            else {
+                                reject(result);
+                            }
                         }
                     }
                     catch (exception) {
@@ -106,18 +163,22 @@ var Authenticator = (function () {
         return new Promise(function (resolve, reject) {
             Office.context.ui.displayDialogAsync(url, options, function (result) {
                 var dialog = result.value;
-                dialog.addEventHandler(Microsoft.Office.WebExtension.EventType.DialogMessageReceived, function (args) {
+                dialog.addEventHandler(Office.EventType.DialogMessageReceived, function (args) {
                     dialog.close();
                     try {
-                        if (args.message == '' || args.message == null) {
-                            reject("No token received");
+                        if (args.message == null || args.message === '')
+                            reject('No access_token or code could be parsed.');
+                        var json = JSON.parse(args.message);
+                        if ('code' in json) {
+                            resolve(json);
                         }
-                        if (args.message.indexOf('access_token') == -1) {
-                            reject(JSON.parse(args.message));
+                        else if ('access_token' in json) {
+                            _this._tokenManager.add(endpoint.provider, json);
+                            resolve(json);
                         }
-                        var token = JSON.parse(args.message);
-                        _this._tokenManager.add(endpoint.provider, token);
-                        resolve(token);
+                        else {
+                            reject(json);
+                        }
                     }
                     catch (exception) {
                         reject(exception);
@@ -126,7 +187,13 @@ var Authenticator = (function () {
             });
         });
     };
+    /**
+     * Controls the way the authentication should take place.
+     * Either by using dialog or by redirecting the current window.
+     * Defaults to the dialog flow.
+     */
+    Authenticator.mode = AuthenticationMode.Dialog;
     return Authenticator;
 }());
 exports.Authenticator = Authenticator;
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXV0aGVudGljYXRvci5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9hdXRoZW50aWNhdG9yLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7QUFBQSxpQ0FBeUMsNkJBQTZCLENBQUMsQ0FBQTtBQUN2RSw4QkFBbUMsMEJBQTBCLENBQUMsQ0FBQTtBQUk5RDs7R0FFRztBQUNIO0lBQ0k7Ozs7O01BS0U7SUFDRix1QkFDWSxnQkFBaUMsRUFDakMsYUFBMkI7UUFEM0IscUJBQWdCLEdBQWhCLGdCQUFnQixDQUFpQjtRQUNqQyxrQkFBYSxHQUFiLGFBQWEsQ0FBYztJQUV2QyxDQUFDO0lBRUQ7Ozs7Ozs7Ozs7OztPQVlHO0lBQ0gsb0NBQVksR0FBWixVQUFhLFFBQWdCLEVBQUUsS0FBc0I7UUFBdEIscUJBQXNCLEdBQXRCLGFBQXNCO1FBQ2pELElBQUksS0FBSyxHQUFHLElBQUksQ0FBQyxhQUFhLENBQUMsR0FBRyxDQUFDLFFBQVEsQ0FBQyxDQUFDO1FBQzdDLEVBQUUsQ0FBQyxDQUFDLEtBQUssSUFBSSxJQUFJLElBQUksQ0FBQyxLQUFLLENBQUM7WUFBQyxNQUFNLENBQUMsT0FBTyxDQUFDLE9BQU8sQ0FBQyxLQUFLLENBQUMsQ0FBQztRQUUzRCxJQUFJLFFBQVEsR0FBRyxJQUFJLENBQUMsZ0JBQWdCLENBQUMsR0FBRyxDQUFDLFFBQVEsQ0FBQyxDQUFDO1FBRW5ELElBQUksSUFBSSxDQUFDO1FBQ1QsRUFBRSxDQUFDLENBQUMsYUFBYSxDQUFDLE9BQU8sQ0FBQztZQUFDLElBQUksR0FBRyxJQUFJLENBQUMsYUFBYSxDQUFDLFFBQVEsQ0FBQyxDQUFDO1FBQy9ELElBQUk7WUFBQyxJQUFJLEdBQUcsSUFBSSxDQUFDLGtCQUFrQixDQUFDLFFBQVEsQ0FBQyxDQUFDO1FBRTlDLE1BQU0sQ0FBQyxJQUFJLENBQUMsS0FBSyxDQUFDLFVBQUEsS0FBSyxJQUFJLE9BQUEsT0FBTyxDQUFDLEtBQUssQ0FBQyxLQUFLLENBQUMsRUFBcEIsQ0FB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
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXV0aGVudGljYXRvci5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9hdXRoZW50aWNhdG9yLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7QUFBQSxpQ0FBeUMsNkJBQTZCLENBQUMsQ0FBQTtBQUN2RSw4QkFBa0QsMEJBQTBCLENBQUMsQ0FBQTtBQUU3RTs7O0dBR0c7QUFDSCxXQUFZLGtCQUFrQjtJQUMxQjs7T0FFRztJQUNILCtEQUFNLENBQUE7SUFFTjs7T0FFRztJQUNILG1FQUFRLENBQUE7QUFDWixDQUFDLEVBVlcsMEJBQWtCLEtBQWxCLDBCQUFrQixRQVU3QjtBQVZELElBQVksa0JBQWtCLEdBQWxCLDBCQVVYLENBQUE7QUFFRDs7R0FFRztBQUNIO0lBQ0k7Ozs7O01BS0U7SUFDRix1QkFDWSxnQkFBaUMsRUFDakMsYUFBMkI7UUFEM0IscUJBQWdCLEdBQWhCLGdCQUFnQixDQUFpQjtRQUNqQyxrQkFBYSxHQUFiLGFBQWEsQ0FBYztRQUVuQyxFQUFFLENBQUMsQ0FBQyxnQkFBZ0IsSUFBSSxJQUFJLENBQUM7WUFBQyxNQUFNLDZDQUE2QyxDQUFDO1FBQ2xGLEVBQUUsQ0FBQyxDQUFDLGFBQWEsSUFBSSxJQUFJLENBQUM7WUFBQyxNQUFNLDBDQUEwQyxDQUFDO1FBQzVFLEVBQUUsQ0FBQyxDQUFDLGdCQUFnQixDQUFDLEtBQUssSUFBSSxDQUFDLENBQUM7WUFBQyxNQUFNLDJHQUEyRyxDQUFDO0lBQ3ZKLENBQUM7SUFTRDs7Ozs7Ozs7Ozs7O09BWUc7SUFDSCxvQ0FBWSxHQUFaLFVBQWEsUUFBZ0IsRUFBRSxLQUFzQjtRQUF0QixxQkFBc0IsR0FBdEIsYUFBc0I7UUFDakQsSUFBSSxLQUFLLEdBQUcsSUFBSSxDQUFDLGFBQWEsQ0FBQyxHQUFHLENBQUMsUUFBUSxDQUFDLENBQUM7UUFDN0MsRUFBRSxDQUFDLENBQUMsS0FBSyxJQUFJLElBQUksSUFBSSxDQUFDLEtBQUssQ0FBQztZQUFDLE1BQU0sQ0FBQyxPQUFPLENBQUMs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

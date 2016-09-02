@@ -10,6 +10,16 @@ export interface IToken {
     expires_in?: string;
     expires_at?: Date;
 }
+export interface ICode {
+    provider: string;
+    code: string;
+    scope?: string;
+    state?: string;
+}
+export interface IError {
+    error: string;
+    state?: string;
+}
 /**
  * Helper for caching and managing OAuth Tokens.
  */
@@ -21,7 +31,7 @@ export declare class TokenManager extends Storage<IToken> {
     /**
      * Compute the expiration date based on the expires_in field in a OAuth token.
      */
-    setExpired(token: IToken): any;
+    setExpiry(token: IToken): any;
     /**
      * Extends Storage's default add method
      * Adds a new OAuth Token after settings its expiry
@@ -40,6 +50,10 @@ export declare class TokenManager extends Storage<IToken> {
      * @param {string} delimiter[optional] Delimiter used by OAuth provider to mark the beginning of token response. Defaults to #.
      * @return {object} Returns the extracted token.
      */
-    static getToken(url: string, exclude?: string, delimiter?: string): IToken;
+    static getToken(url: string, exclude?: string, delimiter?: string): ICode | IToken | IError;
+    /**
+     * Check if the supplied url has either access_token or code or error
+     */
+    static isTokenUrl(url: string): boolean;
     private static _extractParams(segment);
 }
